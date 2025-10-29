@@ -1,17 +1,17 @@
-name: Selenium Automation Tests
+name: Selenium Pytest CI
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
-    branches: [main, master]
+    branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -24,25 +24,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Set up Chrome and ChromeDriver
-        uses: browser-actions/setup-chrome@v1
-        with:
-          chrome-version: stable
-      - run: |
-          echo "Chrome path: $(which google-chrome)"
-          google-chrome --version
-
-      - name: Run Pytest with Selenium
-        env:
-          DISPLAY: :99
+      - name: Install browsers
         run: |
           sudo apt-get update
           sudo apt-get install -y xvfb
-          xvfb-run -a pytest --maxfail=1 --disable-warnings -v --html=reports/report.html --self-contained-html
+          sudo apt-get install -y firefox
+          sudo apt-get install -y chromium-browser
 
-      - name: Upload Test Report (HTML)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: selenium-test-report
-          path: reports/report.html
+      - name: Run tests with pytest
+        run: |
+          xvfb-run pytest -v --reruns 2 --reruns-delay 3 --html=reports/test_report.html --self-contained-html
