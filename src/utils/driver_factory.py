@@ -1,0 +1,77 @@
+import os
+import logging
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.firefox import GeckoDriverManager
+from pathlib import Path
+
+logger = logging.getLogger(__name__)
+
+class DriverFactory:
+    @staticmethod
+    def create_driver(browser=None, headless=False):
+        """
+        Factory method to create a WebDriver instance dynamically.
+        Supports Chrome and Firefox.
+        """
+        # Read from parameter first, else from environment
+        browser = (browser or os.getenv("BROWSER", "chrome")).lower()
+        headless = headless or os.getenv("HEADLESS", "false").lower() == "true"
+
+        logger.info(f"Creating {browser.capitalize()} driver (headless={headless})")
+
+        if browser == "chrome":
+            return DriverFactory._create_chrome_driver(headless)
+        elif browser == "firefox":
+            return DriverFactory._create_firefox_driver(headless)
+        else:
+            raise ValueError(f"Unsupported browser: {browser}")
+
+    @staticmethod
+    def _create_chrome_driver(headless=False):
+        options = webdriver.ChromeOptions()
+        if headless:
+            options.add_argument("--headless=new")
+            options.add_argument("--no-sandbox")
+            options.add_argument("--disable-gpu")
+            options.add_argument("--disable-dev-shm-usage")
+
+        service = ChromeService(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=options)
+        driver.maximize_window()
+        return driver
+
+    @staticmethod
+    def _create_firefox_driver(headless=False):
+        options = webdriver.FirefoxOptions()
+        if headless:
+            options.add_argument("--headless")
+
+        service = FirefoxService(GeckoDriverManager().install())
+        driver = webdriver.Firefox(service=service, options=options)
+        driver.maximize_window()
+        return driver
+
+    @staticmethod
+    def take_screenshot(driver, filename):
+        """
+        Take a screenshot and save it to reports/screenshots.
+        """
+        try:
+            screenshot_dir = Path("reports/screenshots")
+            screenshot_dir.mkdir(parents=True, exist_ok=True)
+            screenshot_path = screenshot_dir / f"{filename}.png"
+            driver.save_screenshot(str(screenshot_path))
+            logger.info(f"Screenshot saved: {screenshot_path}")
+            return str(screenshot_path)
+        except Exception as e:
+            logger.error(f"Failed to take screenshot: {str(e)}")
+            return None
+
+    @staticmethod
+    def quit_driver(driver):
+        """Gracefully quit the WebDriver."""
+        if driver:
+            driver.quit()

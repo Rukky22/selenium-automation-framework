@@ -1,0 +1,72 @@
+# =====================================
+# 🧪 Selenium Automation Framework
+# =====================================
+
+# ---> Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+.venv/
+env/
+venv/
+ENV/
+
+# IDE & Editor settings
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Test reports & logs
+reports/
+logs/
+*.log
+*.html
+*.xml
+*.json
+
+# Pytest cache & temporary files
+.pytest_cache/
+.cache/
+.tox/
+.coverage
+coverage.xml
+*.cover
+*.py,cover
+htmlcov/
+
+# Node modules (if any frontend tests or hybrid setup)
+node_modules/
+
+# Environment & secrets
+.env
+.env.*
+*.pem
+*.key
+*.crt
+
+# Build & distribution
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# Backup files
+*.bak
+*.tmp
+~$*
+
+# Misc
+selenium-screenshot-*
+screenshots/
+temp/
+tmp/
