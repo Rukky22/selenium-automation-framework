@@ -8,64 +8,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-chrome:
-    runs-on: ubuntu-latest
-    name: Test with Chrome
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: "pip"
-
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Setup Chrome
-        uses: browser-actions/setup-chrome@v1
-        with:
-          chrome-version: stable
-          install-chromedriver: true
-
-      - name: Verify Chrome and ChromeDriver
-        run: |
-          google-chrome --version
-          chromedriver --version
-          which google-chrome
-          which chromedriver
-
-      - name: Create directories
-        run: mkdir -p reports/screenshots reports/logs
-
-      - name: Run tests
-        env:
-          BROWSER: chrome
-          HEADLESS: true
-          CI: true
-          ENVIRONMENT: dev
-        run: |
-          pytest -v \
-            --maxfail=1 \
-            --reruns=2 \
-            --reruns-delay=3 \
-            --html=reports/test_report_chrome.html \
-            --self-contained-html \
-            --tb=short
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-chrome
-          path: reports/
-          retention-days: 30
-
   test-firefox:
     runs-on: ubuntu-latest
     name: Test with Firefox
