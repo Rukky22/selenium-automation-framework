@@ -1,4 +1,4 @@
-name: Selenium Pytest CI
+name: Run Selenium Tests with Firefox
 
 on:
   push:
@@ -27,10 +27,8 @@ jobs:
       - name: Install Firefox and GeckoDriver
         run: |
           sudo apt-get update
-          sudo apt-get install -y firefox wget tar
-          # Download and install the latest geckodriver
-          GECKO_VERSION=$(curl -s https://api.github.com/repos/mozilla/geckodriver/releases/latest | grep tag_name | cut -d '"' -f 4)
-          wget -qO- https://github.com/mozilla/geckodriver/releases/download/$GECKO_VERSION/geckodriver-$GECKO_VERSION-linux64.tar.gz | sudo tar -xz -C /usr/local/bin
+          sudo apt-get install -y firefox
+          sudo apt-get install -y firefox-geckodriver
           which firefox
           which geckodriver
           firefox --version
@@ -41,8 +39,7 @@ jobs:
           BROWSER: firefox
           HEADLESS: true
         run: |
-          xvfb-run pytest -v --reruns 2 --reruns-delay 3 \
-            --html=reports/test_report.html --self-contained-html
+          xvfb-run pytest -v --reruns 2 --reruns-delay 3 --html=reports/test_report.html --self-contained-html
 
       - name: Upload test report
         uses: actions/upload-artifact@v4
