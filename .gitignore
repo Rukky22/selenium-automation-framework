@@ -70,3 +70,6 @@ selenium-screenshot-*
 screenshots/
 temp/
 tmp/
+
+# Exception for test_data.json
+!src/data/test_data.json

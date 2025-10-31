@@ -29,15 +29,19 @@ def pytest_configure(config):
 @pytest.fixture(scope="session")
 def test_data():
     """
-    Load test data from JSON file.
+    Load test data from JSON file with absolute path resolution.
     
     Returns:
         dict: Test data
     """
-    test_data_path = os.getenv('TEST_DATA_PATH', 'src/data/test_data.json')
-    with open(test_data_path, 'r') as f:
-        data = json.load(f)
-    return data
+    env_path = os.getenv("TEST_DATA_PATH")
+    if env_path and os.path.exists(env_path):
+        test_data_path = env_path
+    else:
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        test_data_path = os.path.join(base_dir, "data", "test_data.json")
+    with open(test_data_path, "r") as f:
+        return json.load(f)
 
 
 @pytest.fixture(scope="session")
