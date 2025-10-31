@@ -24,13 +24,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Install Firefox and GeckoDriver
+        name: Install Firefox and GeckoDriver
         run: |
           sudo apt-get update
-          sudo apt-get install -y firefox-esr
-          sudo apt-get install -y geckodriver
+          sudo apt-get install -y firefox
+          sudo apt-get install -y wget tar
+          # Download and install latest geckodriver manually
+          GECKO_VERSION=$(curl -s https://api.github.com/repos/mozilla/geckodriver/releases/latest | grep tag_name | cut -d '"' -f 4)
+          wget -qO- https://github.com/mozilla/geckodriver/releases/download/$GECKO_VERSION/geckodriver-$GECKO_VERSION-linux64.tar.gz | sudo tar -xz -C /usr/local/bin
           which firefox
           which geckodriver
+          firefox --version
+          geckodriver --version
 
       - name: Run tests in Firefox (headless)
         env:
