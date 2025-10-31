@@ -2,6 +2,7 @@ import os
 import logging
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.chrome import ChromeDriverManager
@@ -60,11 +61,18 @@ class DriverFactory:
 
     @staticmethod
     def _create_firefox_driver(headless=False):
-        options = webdriver.FirefoxOptions()
+        options = FirefoxOptions()
         if headless:
             options.add_argument("--headless")
+            options.add_argument("--disable-gpu")
+            options.add_argument("--no-sandbox")
 
-        service = FirefoxService(GeckoDriverManager().install())
+        # Use system-installed geckodriver in CI, otherwise use webdriver-manager locally
+        if os.getenv("CI", "false").lower() == "true":
+            service = FirefoxService("/usr/bin/geckodriver")
+        else:
+            service = FirefoxService(GeckoDriverManager().install())
+
         driver = webdriver.Firefox(service=service, options=options)
         driver.maximize_window()
         return driver

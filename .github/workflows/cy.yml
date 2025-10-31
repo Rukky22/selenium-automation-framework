@@ -10,11 +10,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    env:
-      CI: "true"
-      HEADLESS: "true" # 👈 Force headless mode for Selenium
-      BROWSER: "chrome"
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -28,19 +23,24 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pytest --version
 
-      - name: Install Chrome and dependencies
+      - name: Install Firefox and GeckoDriver
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget unzip xvfb libnss3 libgconf-2-4 libxi6 libgbm-dev
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo apt install -y ./google-chrome-stable_current_amd64.deb
+          sudo apt-get install -y firefox-esr
+          sudo apt-get install -y geckodriver
+          which firefox
+          which geckodriver
 
-      - name: Verify Chrome installation
-        run: google-chrome --version
-
-      - name: Run tests
+      - name: Run tests in Firefox (headless)
+        env:
+          BROWSER: firefox
+          HEADLESS: true
         run: |
-          xvfb-run pytest -v --reruns 2 --reruns-delay 3 \
-            --html=reports/test_report.html --self-contained-html
+          xvfb-run pytest -v --reruns 2 --reruns-delay 3 --html=reports/test_report.html --self-contained-html
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-pytest-report
+          path: reports/test_report.html
