@@ -1,0 +1,87 @@
+{
+  "environments": {
+    "dev": {
+      "url": "https://www.saucedemo.com/"
+    },
+    "staging": {
+      "url": "https://www.saucedemo.com/"
+    },
+    "prod": {
+      "url": "https://www.saucedemo.com/"
+    }
+  },
+  "validUsers": [
+    {
+      "testCaseId": "SEL-TC001",
+      "description": "Standard user login",
+      "username": "standard_user",
+      "password": "secret_sauce",
+      "role": "standard"
+    },
+    {
+      "testCaseId": "SEL-TC002",
+      "description": "Problem user login",
+      "username": "problem_user",
+      "password": "secret_sauce",
+      "role": "problem"
+    },
+    {
+      "testCaseId": "SEL-TC003",
+      "description": "Performance glitch user login",
+      "username": "performance_glitch_user",
+      "password": "secret_sauce",
+      "role": "performance"
+    },
+    {
+      "testCaseId": "SEL-TC004",
+      "description": "Error user login",
+      "username": "error_user",
+      "password": "secret_sauce",
+      "role": "error"
+    },
+    {
+      "testCaseId": "SEL-TC005",
+      "description": "Visual user login",
+      "username": "visual_user",
+      "password": "secret_sauce",
+      "role": "visual"
+    }
+  ],
+  "invalidUsers": [
+    {
+      "testCaseId": "SEL-TC006",
+      "description": "Locked out user",
+      "username": "locked_out_user",
+      "password": "secret_sauce",
+      "expectedError": "Epic sadface: Sorry, this user has been locked out."
+    },
+    {
+      "testCaseId": "SEL-TC007",
+      "description": "Invalid username",
+      "username": "invalid_user",
+      "password": "secret_sauce",
+      "expectedError": "Epic sadface: Username and password do not match any user in this service"
+    },
+    {
+      "testCaseId": "SEL-TC008",
+      "description": "Invalid password",
+      "username": "standard_user",
+      "password": "wrong_password",
+      "expectedError": "Epic sadface: Username and password do not match any user in this service"
+    },
+    {
+      "testCaseId": "SEL-TC009",
+      "description": "Empty username",
+      "username": "",
+      "password": "secret_sauce",
+      "expectedError": "Epic sadface: Username is required"
+    },
+    {
+      "testCaseId": "SEL-TC010",
+      "description": "Empty password",
+      "username": "standard_user",
+      "password": "",
+      "expectedError": "Epic sadface: Password is required"
+    }
+  ]
+}
