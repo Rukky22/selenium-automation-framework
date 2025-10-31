@@ -137,9 +137,3 @@ Randolph Rukevwe Oghwe
 🔗 LinkedIn Profile
 
 🧠 Passionate about quality engineering, automation, and test framework design.
-
-
----
-
-Would you like me to include a **badge section** (e.g., Pytest, Selenium, Build passing, Python ve
-```
