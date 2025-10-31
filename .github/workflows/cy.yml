@@ -1,14 +1,16 @@
-name: Run Selenium Tests with Chrome
+name: Selenium Tests (Simple)
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
+  workflow_dispatch:
 
 jobs:
-  test:
+  test-chrome:
     runs-on: ubuntu-latest
+    name: Test with Chrome
 
     steps:
       - name: Checkout code
@@ -18,32 +20,106 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: "pip"
 
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Install Google Chrome & ChromeDriver
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
-          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+' | head -1)
-          echo "Installed Chrome version: $CHROME_VERSION"
-          pip install webdriver-manager
-          google-chrome --version
-          chromedriver --version || echo "ChromeDriver handled by webdriver-manager"
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+          install-chromedriver: true
 
-      - name: Run tests in Chrome (headless)
+      - name: Verify Chrome and ChromeDriver
+        run: |
+          google-chrome --version
+          chromedriver --version
+          which google-chrome
+          which chromedriver
+
+      - name: Create directories
+        run: mkdir -p reports/screenshots reports/logs
+
+      - name: Run tests
         env:
           BROWSER: chrome
           HEADLESS: true
+          CI: true
+          ENVIRONMENT: dev
         run: |
-          xvfb-run pytest -v --maxfail=1 --reruns 2 --reruns-delay 3 \
-            --html=reports/test_report.html --self-contained-html
+          pytest -v \
+            --maxfail=1 \
+            --reruns=2 \
+            --reruns-delay=3 \
+            --html=reports/test_report_chrome.html \
+            --self-contained-html \
+            --tb=short
 
-      - name: Upload test report
+      - name: Upload artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: selenium-pytest-report
-          path: reports/test_report.html
+          name: test-results-chrome
+          path: reports/
+          retention-days: 30
+
+  test-firefox:
+    runs-on: ubuntu-latest
+    name: Test with Firefox
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Setup Firefox
+        uses: browser-actions/setup-firefox@v1
+        with:
+          firefox-version: latest
+
+      - name: Install GeckoDriver
+        run: |
+          wget -q https://github.com/mozilla/geckodriver/releases/download/v0.35.0/geckodriver-v0.35.0-linux64.tar.gz
+          tar -xzf geckodriver-v0.35.0-linux64.tar.gz
+          sudo mv geckodriver /usr/local/bin/
+          sudo chmod +x /usr/local/bin/geckodriver
+          geckodriver --version
+
+      - name: Create directories
+        run: mkdir -p reports/screenshots reports/logs
+
+      - name: Run tests
+        env:
+          BROWSER: firefox
+          HEADLESS: true
+          CI: true
+          ENVIRONMENT: dev
+        run: |
+          pytest -v \
+            --maxfail=1 \
+            --reruns=2 \
+            --reruns-delay=3 \
+            --html=reports/test_report_firefox.html \
+            --self-contained-html \
+            --tb=short
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-firefox
+          path: reports/
+          retention-days: 30
