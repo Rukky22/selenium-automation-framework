@@ -1,6 +1,7 @@
 import os
 import logging
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.chrome import ChromeDriverManager
@@ -35,16 +36,26 @@ class DriverFactory:
 
     @staticmethod
     def _create_chrome_driver(headless=False):
-        options = webdriver.ChromeOptions()
-        if headless:
-            options.add_argument("--headless=new")
-            options.add_argument("--no-sandbox")
-            options.add_argument("--disable-gpu")
-            options.add_argument("--disable-dev-shm-usage")
+        options = Options()
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-gpu")
+        options.add_argument("--window-size=1920,1080")
 
-        service = ChromeService(ChromeDriverManager().install())
+        if os.getenv("CI", "false").lower() == "true" or headless:
+            options.add_argument("--headless=new")
+
+        # --- FIX: Ensure correct executable path ---
+        driver_path = ChromeDriverManager().install()
+
+        # WebDriver Manager sometimes returns the directory instead of the actual binary
+        if driver_path.endswith("THIRD_PARTY_NOTICES.chromedriver"):
+            fixed_path = driver_path.replace("THIRD_PARTY_NOTICES.chromedriver", "chromedriver")
+            if os.path.exists(fixed_path):
+                driver_path = fixed_path
+
+        service = ChromeService(driver_path)
         driver = webdriver.Chrome(service=service, options=options)
-        driver.maximize_window()
         return driver
 
     @staticmethod
