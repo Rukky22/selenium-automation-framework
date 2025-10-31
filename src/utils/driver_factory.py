@@ -18,7 +18,11 @@ class DriverFactory:
         """
         # Read from parameter first, else from environment
         browser = (browser or os.getenv("BROWSER", "chrome")).lower()
-        headless = headless or os.getenv("HEADLESS", "false").lower() == "true"
+        headless = (
+            headless
+            or os.getenv("HEADLESS", "false").lower() == "true"
+            or os.getenv("CI", "false").lower() == "true"   # 👈 auto headless in CI
+        )
 
         logger.info(f"Creating {browser.capitalize()} driver (headless={headless})")
 
